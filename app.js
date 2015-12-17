@@ -37,6 +37,10 @@ app.route('/webhooks/bitbucket')
 ///app.use(handle404);
 
 //Generic error handling middleware.
-///app.use(handleError);
+app.use( function errorHandler(err, req, res, next) {
+  res.status(500);
+  res.render('error', { error: err });
+});
+
 app.listen(port);
 console.log('Magic happens on port ' + port);
