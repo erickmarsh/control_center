@@ -8,7 +8,7 @@ var p               = require('path');
 
 // Routes
 var default_route   = require("./app/routes/default");
-var bitbucket_route = require("./app/routes/bitbucket");
+var BitBucketRoute = require("./app/routes/bitbucket_route");
 var app = express();
 
 //For serving the index.html and all the other front-end assets.
@@ -17,7 +17,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
 
-var port = process.env.PORT || 801;        // set our port
+var port = process.env.PORT || 802;        // set our port
 
 
 
@@ -26,18 +26,11 @@ app.route('/')
   .get(default_route.defaultMessage);
  
 app.route('/webhooks/bitbucket/:id')
-  .get ( function (req, res, next) {
-      if (req.params.id == null || req.params.id == undefined) {
-        next();
-      }
-      else {
-        bitbucket_route.get(req, res, next);
-      }
-  });
+  .get (new BitBucketRoute().get);
 
 app.route('/webhooks/bitbucket')
-  .post(bitbucket_route.add)
-  .get (bitbucket_route.list);
+  .post(new BitBucketRoute().add)
+  .get (new BitBucketRoute().list);
  
 
 //If we reach this middleware the route could not be handled and must be unknown.

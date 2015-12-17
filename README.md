@@ -33,7 +33,11 @@ Start RethinkDB
 
 Start Node using forever
 ```
-> cd {install location}
+> cd /var/www
+> mkdir conrol_center
+> cd control_center
+> git clone https://github.com/erickmarsh/control_center.git . 
+> npm install
 > forever app.js
 ```
 
