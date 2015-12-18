@@ -6,8 +6,9 @@ module.exports.defaultMessage = function (req, res, next) {
 }
 
 module.exports.post = function (req, res, next) {
+    console.log("Accessed 'default post route'")
     console.log(req);
-    res.send(req);
+    res.send(req.body);
 }
 
 module.exports.error404 = function  (req, res, next) {

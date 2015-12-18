@@ -34,6 +34,9 @@ app.route('/webhooks/bitbucket')
   .post(new BitBucketRoute().add)
   .get (new BitBucketRoute().list);
  
+app.route('*')
+  .get(default_route.defaultMessage)
+  .post(default_route.post);
 
 //If we reach this middleware the route could not be handled and must be unknown.
 ///app.use(handle404);
