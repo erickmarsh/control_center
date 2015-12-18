@@ -23,7 +23,8 @@ var port = process.env.PORT || 802;        // set our port
 
 //The REST routes for "todos".
 app.route('/')
-  .get(default_route.defaultMessage);
+  .get(default_route.defaultMessage)
+  .post(default_route.post);
  
 app.route('/webhooks/bitbucket/:id')
   .get (new BitBucketRoute().get);
