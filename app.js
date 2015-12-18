@@ -36,6 +36,14 @@ app.route('/webhooks/bitbucket')
 //If we reach this middleware the route could not be handled and must be unknown.
 ///app.use(handle404);
 
+app.use(handle403);
+
+function handle403(err, req, res, next) {
+  if (err.status !== 403) return next();
+  res.send('403 error\n\n' + JSON.stringify(req));
+}
+
+
 //Generic error handling middleware.
 app.use( function errorHandler(err, req, res, next) {
   res.status(500);
