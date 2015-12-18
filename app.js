@@ -19,7 +19,8 @@ app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x
 
 var port = process.env.PORT || 802;        // set our port
 
-
+// Trust the proxy (for DigitalOcean)
+app.enable( 'trust proxy' );
 
 //The REST routes for "todos".
 app.route('/')
