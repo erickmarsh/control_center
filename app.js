@@ -26,14 +26,17 @@ app.enable( 'trust proxy' );
 app.route('/')
   .get(default_route.defaultMessage)
   .post(default_route.post);
- 
+
 app.route('/webhooks/bitbucket/:id')
   .get (new BitBucketRoute().get);
 
 app.route('/webhooks/bitbucket')
   .post(new BitBucketRoute().add)
   .get (new BitBucketRoute().list);
- 
+
+app.route('/webhooks/jenkins')
+  .post(new JenkinsRoute().add);
+
 app.route('*')
   .get(default_route.defaultMessage)
   .post(default_route.post);
