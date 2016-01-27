@@ -34,7 +34,7 @@ describe("server api", () => {
       beforeEach( () => client = io.connect(socketURL, options));
       afterEach(  () => client.disconnect());
 
-      it("should broadcast new users to all users", done => {
+      it("should broadcast new users to all users", (done) => {
         let count = 0,
             otherClient;
 

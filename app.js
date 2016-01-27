@@ -72,7 +72,7 @@ io.on('connection', function(socket) {
 
   socket.on('get-branches', function(repo_slug) {
 
-    let bb_service = new BBService('', '');
+    let bb_service = new BBService('eric_marsh', 'pqowie123');
     let branches = bb_service.get_branches('eric_marsh', "magento-2-ce");
 
     // reply back to just the socket that made the req
