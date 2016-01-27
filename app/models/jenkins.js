@@ -17,7 +17,7 @@ class JenkinsModel {
 
   insert (data) {
       var result = db.insert(data);
-      console.log(result);
+      //console.log(result);
       return Promise.resolve(result);
   }
 }

@@ -1,18 +1,24 @@
+'use strict'
 // app.js
 
 // Libraries
 var express         = require('express');
+var app             = express();
+var server          = require('http').Server(app);
+var io              = require('socket.io')(server);
 var bodyParser      = require('body-parser');
 var r               = require('rethinkdb');
 var p               = require('path');
+var _               = require('lodash');
 
 // Routes
-var default_route   = require("./app/routes/default");
-var BitBucketRoute = require("./app/routes/bitbucket_route");
-var app = express();
+var DefaultRoute    = require("./app/routes/default_route");
+var BitBucketRoute  = require("./app/routes/bitbucket_route");
+var JenkinsRoute    = require("./app/routes/jenkins_route");
+var BBService       = require("./app/services/bitbucket.js");
 
 //For serving the index.html and all the other front-end assets.
-app.use(express.static('/public'));
+app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
@@ -24,22 +30,24 @@ app.enable( 'trust proxy' );
 
 //The REST routes for "todos".
 app.route('/')
-  .get(default_route.defaultMessage)
-  .post(default_route.post);
+  .get(new DefaultRoute(io).list);
 
 app.route('/webhooks/bitbucket/:id')
-  .get (new BitBucketRoute().get);
+  .get (new BitBucketRoute(io).get);
 
 app.route('/webhooks/bitbucket')
-  .post(new BitBucketRoute().add)
-  .get (new BitBucketRoute().list);
+  .post(new BitBucketRoute(io).add)
+  .get (new BitBucketRoute(io).list);
 
 app.route('/webhooks/jenkins')
-  .post(new JenkinsRoute().add);
+  .post(new JenkinsRoute(io).add);
+  //.get(console.log("Jenkins GET!"));
 
+/*
 app.route('*')
-  .get(default_route.defaultMessage)
+  .get(Default)
   .post(default_route.post);
+*/
 
 //If we reach this middleware the route could not be handled and must be unknown.
 ///app.use(handle404);
@@ -58,5 +66,30 @@ app.use( function errorHandler(err, req, res, next) {
   res.render('error', { error: err });
 });
 
-app.listen(port);
-console.log('Magic happens on port ' + port);
+// Socket.io connection
+io.on('connection', function(socket) {
+//  console.log('app.js - new connection');
+
+  socket.on('get-branches', function(repo_slug) {
+
+    let bb_service = new BBService('', '');
+    let branches = bb_service.get_branches('eric_marsh', "magento-2-ce");
+
+    // reply back to just the socket that made the req
+    socket.emit('get-branches', branches);
+  });
+
+  socket.on('add-customer', function(customer) {
+    io.emit('add-customer', {
+      message: 'new customer',
+      customer: customer
+    });
+  });
+});
+
+
+server.listen(port, function() {
+  console.log('server up and running  at ' + port);
+});
+
+module.exports = server;

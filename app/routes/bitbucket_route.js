@@ -1,24 +1,26 @@
 "use strict"
 
 var BitBucketModel = require("../models/bitbucket");
-
+var io  = null
 var BB = null;
 
 class BitbucketRoute {
-	
-	constructor() {
+
+	constructor(socket_io) {
 		BB = new BitBucketModel();
+		io = socket_io;
 	}
-	
+
 	add (req, res) {
 		console.log("Adding item: "+ JSON.stringify(req.body));
-    	
-		var body 	= req.body;
-		
+
+		let body 	= req.body;
+
 		return BB.insert(body)
 			.then(function (data) {
-				console.log("It is added");
-  				res.send(data);
+				console.log("bitbucket is added");
+					io.emit("bitbucket", body);
+					res.send(body);
 			})
 			.catch( function (err) {
 				console.log("insertion failed");
@@ -26,11 +28,11 @@ class BitbucketRoute {
 				err.send(err);
 			});
 	}
-	
+
 	/*
 	*	Get a list of items
 	*/
-	list (req, res) {	
+	list (req, res) {
 		return BB.get(null)
       		.then(function (data) {
 				console.log("Got the data! " + data);
@@ -41,7 +43,7 @@ class BitbucketRoute {
 				res.send(err);
 			});
 	}
-	
+
 	/*
 	*	Get a single item
 	*/
@@ -52,15 +54,15 @@ class BitbucketRoute {
 		}
 
     	var id = req.params.id;
-		
+
 		return BB.get_by_id(id)
 			.then(function (data) {
 				res.send(data);
 			}).catch (function (err) {
-				res.send(err); 
+				res.send(err);
 			});
 	}
-	
+
 }
 
 /*

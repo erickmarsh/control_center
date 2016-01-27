@@ -1,27 +1,31 @@
 "use strict"
 
 var JenkinsModel = require("../models/jenkins");
+var io = null;
 
 var J = null;
 
 class JenkinsRoute {
 
-	constructor() {
+	constructor(socket_io) {
 		 J = new JenkinsModel();
+		 io = socket_io;
 	}
 
 	add (req, res) {
-		var body = req.body;
+		console.log("adding jenkins data");
+		let body = req.body;
 
 		console.log("Adding Test Result - "+
-								body.name +" - "+
-								body.branch + " : "+
+								body.name +" - " +
+								body.branch + " : " +
 								body.build );
 
 		return J.insert(body)
 			.then(function (data) {
 				console.log("It is added");
-  				res.send(data);
+					io.emit("jenkins", body);
+  				res.send(body);
 			})
 			.catch( function (err) {
 				console.log("insertion failed");
