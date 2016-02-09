@@ -1,6 +1,6 @@
 "use strict"
 
-var BitBucketModel = require("../models/bitbucket");
+var BitBucketModel = require("../rethinkdb/bitbucket");
 var io  = null
 var BB = null;
 
@@ -12,15 +12,14 @@ class BitbucketRoute {
 	}
 
 	add (req, res) {
-		console.log("Adding item: "+ JSON.stringify(req.body));
+		console.log("Bitbucket - Adding item");
 
 		let body 	= req.body;
 
 		return BB.insert(body)
 			.then(function (data) {
-				console.log("bitbucket is added");
-					io.emit("bitbucket", body);
-					res.send(body);
+					console.log("inserted");
+					res.send("HELLLOOOOO"+ body);
 			})
 			.catch( function (err) {
 				console.log("insertion failed");

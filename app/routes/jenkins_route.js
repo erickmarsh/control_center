@@ -1,6 +1,6 @@
 "use strict"
 
-var JenkinsModel = require("../models/jenkins");
+var JenkinsModel = require("../rethinkdb/jenkins");
 var io = null;
 
 var J = null;

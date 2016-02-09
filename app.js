@@ -15,7 +15,9 @@ var _               = require('lodash');
 var DefaultRoute    = require("./app/routes/default_route");
 var BitBucketRoute  = require("./app/routes/bitbucket_route");
 var JenkinsRoute    = require("./app/routes/jenkins_route");
-var BBService       = require("./app/services/bitbucket.js");
+var RepoRoute       = require("./app/routes/repo_route");
+var EventsRoute     = require("./app/events/routes");
+var socket_conn     = null; // list of users we have open socket connections to
 
 //For serving the index.html and all the other front-end assets.
 app.use(express.static(__dirname + '/public'));
@@ -32,6 +34,9 @@ app.enable( 'trust proxy' );
 app.route('/')
   .get(new DefaultRoute(io).list);
 
+app.route('/repo')
+  .get (new RepoRoute(socket_conn, "test", "master").get);
+
 app.route('/webhooks/bitbucket/:id')
   .get (new BitBucketRoute(io).get);
 
@@ -43,20 +48,15 @@ app.route('/webhooks/jenkins')
   .post(new JenkinsRoute(io).add);
   //.get(console.log("Jenkins GET!"));
 
-/*
-app.route('*')
-  .get(Default)
-  .post(default_route.post);
-*/
 
 //If we reach this middleware the route could not be handled and must be unknown.
 ///app.use(handle404);
 
-app.use(handle403);
+app.use(handle404);
 
-function handle403(err, req, res, next) {
-  if (err.status !== 403) return next();
-  res.send('403 error\n\n' + JSON.stringify(req));
+function handle404(err, req, res, next) {
+  if (err.status !== 404) return next();
+  res.send('404 error\n\n' + JSON.stringify(req));
 }
 
 
@@ -66,27 +66,9 @@ app.use( function errorHandler(err, req, res, next) {
   res.render('error', { error: err });
 });
 
-// Socket.io connection
-io.on('connection', function(socket) {
-//  console.log('app.js - new connection');
 
-  socket.on('get-branches', function(repo_slug) {
-
-    let bb_service = new BBService('eric_marsh', 'pqowie123');
-    let branches = bb_service.get_branches('eric_marsh', "magento-2-ce");
-
-    // reply back to just the socket that made the req
-    socket.emit('get-branches', branches);
-  });
-
-  socket.on('add-customer', function(customer) {
-    io.emit('add-customer', {
-      message: 'new customer',
-      customer: customer
-    });
-  });
-});
-
+let events_route = new EventsRoute(io);
+events_route.listen();
 
 server.listen(port, function() {
   console.log('server up and running  at ' + port);
