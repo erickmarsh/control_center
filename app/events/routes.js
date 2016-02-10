@@ -18,16 +18,22 @@ class EventsRoute {
         t._io.on('connection', function(socket) {
             t._socket        = socket;
             t._listeners     = new Listeners(t._io, t._socket);
-            t._change_feeds  = new ChangeFeedEmitter(t._io, t._socket);
+            t._change_feeds  = new ChangeFeedEmitter(t._io, socket);
             
-            t._change_feeds.add_table('bitbucket', 'bitbucket');
-            t._change_feeds.add_table('jenkins',   'jenkins');
+            //t._change_feeds.add_repo('magento-ce', 'master', 'bitbucket');
+            //t._change_feeds.add_repo('jenkins',   'jenkins');
 
             t._socket.on('get-branches', (data) => {t._get_branches(data)});
             t._socket.on('add-customer', (data) => {t._add_customer(data)});
+            t._socket.on('repo-follow',  (data) => {
+                console.log("repo-follow");
+                t._change_feeds.add_bitbucket_repo("Repository", "name-of-branch", 'bitbucket');
+            });
+            
+            return socket;
         });
     }
-    
+       
     _add_customer(data){
         this._io.emit('add-customer', {
             message: 'new customer',

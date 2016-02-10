@@ -25,6 +25,40 @@ class ChangeFeedEmitter {
         });
     }
     
+    add_bitbucket_repo(repo_name, branch, event_name) {
+        let t = this;
+        
+        //emit bitbucket events
+        return this._rtdb.r
+            .db("control_center")
+            .table("bitbucket")
+            .filter( (row) => {
+                return row("repository").eq(repo_name)
+                    .and( row("push")("changes").nth(0)("new")("name").eq(branch) )
+            })
+            .changes({includeInitial: true})
+            .limit(10)
+            .then ( (results) => {
+                console.log("size" + results.length);
+                results.each( function(err, elem) {
+                    if (err) throw err;
+                    if (t._socket.connected) {
+                        console.log("emit event: " + event_name);
+                        t._socket.emit(event_name, elem);
+                    }
+                    else {
+                        console.log("socket not connected");
+                    }
+
+                });
+                
+                console.log("RESULTS = "+ results);
+                return Promise.resolve(results);  
+            });
+       
+       //emit Jenkins events
+    }
+    
 }
 
 module.exports = ChangeFeedEmitter;

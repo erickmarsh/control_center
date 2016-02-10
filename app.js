@@ -10,6 +10,7 @@ var bodyParser      = require('body-parser');
 var r               = require('rethinkdb');
 var p               = require('path');
 var _               = require('lodash');
+var config          = require('config');
 
 // Routes
 var DefaultRoute    = require("./app/routes/default_route");
@@ -30,12 +31,19 @@ var port = process.env.PORT || 802;        // set our port
 // Trust the proxy (for DigitalOcean)
 app.enable( 'trust proxy' );
 
+//------------ Socket Routing ---------------------
+let events_route = new EventsRoute(io);
+let active_socket = events_route.listen();
+
+
+//------------- The API Routes ----------------
+
 //The REST routes for "todos".
 app.route('/')
   .get(new DefaultRoute(io).list);
 
-app.route('/repo')
-  .get (new RepoRoute(socket_conn, "test", "master").get);
+app.route('/repo/:repository/:branch')
+  .get (new RepoRoute(io, active_socket).get);
 
 app.route('/webhooks/bitbucket/:id')
   .get (new BitBucketRoute(io).get);
@@ -49,15 +57,12 @@ app.route('/webhooks/jenkins')
   //.get(console.log("Jenkins GET!"));
 
 
-//If we reach this middleware the route could not be handled and must be unknown.
-///app.use(handle404);
+//------------ Error handlers --------------------
 
-app.use(handle404);
-
-function handle404(err, req, res, next) {
+app.use( function handle404(err, req, res, next) {
   if (err.status !== 404) return next();
   res.send('404 error\n\n' + JSON.stringify(req));
-}
+});
 
 
 //Generic error handling middleware.
@@ -67,9 +72,8 @@ app.use( function errorHandler(err, req, res, next) {
 });
 
 
-let events_route = new EventsRoute(io);
-events_route.listen();
 
+//----------- Start up the server! -----------------
 server.listen(port, function() {
   console.log('server up and running  at ' + port);
 });

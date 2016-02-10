@@ -7,6 +7,7 @@
     <label>Please enter your name: </label>
     <input ng-model="currentCustomer.name"/>
     <button ng-click="join()">Join</button>
+    <button ng-click="get_repo()">Get Repo</button>
     <br/>
 
     <h1>New Customers: </h1>
@@ -17,7 +18,6 @@
     <h1>Bitbucket Data: </h1>
     <ul>
       <li ng-repeat="d in newBitbucketData">
-        <pre>{{d | json}}</pre>
         <h3>{{d.actor}}</h3>
         <a href="{{d.link}}"><div style="font-weight: bold">{{d.date}}: {{d.branch}} - {{d.action}}</div></a>
         <div style="font-style: italic">{{d.message}}</div>

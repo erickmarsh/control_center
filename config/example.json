@@ -1,0 +1,12 @@
+{
+    "bitbucket": {
+       "username": ""
+      ,"password": ""
+      ,"domain": ""  
+    },
+    "jenkins": {
+       "username": ""
+      ,"password": ""
+      ,"url": ""
+    }
+}

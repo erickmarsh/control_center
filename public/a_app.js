@@ -23,7 +23,7 @@ app.factory('socket', ['$rootScope', function($rootScope) {
   };
 }]);
 
-app.controller('IndexController', function($scope, socket) {
+app.controller('IndexController', function($scope, $http, socket) {
   $scope.newCustomers = [];
   $scope.currentCustomer = {};
   $scope.newBitbucketData = [];
@@ -32,6 +32,15 @@ app.controller('IndexController', function($scope, socket) {
   $scope.join = function() {
     socket.emit('add-customer', $scope.currentCustomer);
   };
+
+  $scope.get_repo = function() {
+    socket.emit('repo-follow', {repo: "magento-2-ce", branch: "master"});   
+     
+    /*$http.get("/repo/Repository/name-of-branch").then( function (data){
+        console.log(data);
+    });
+    */
+  }
 
   $scope.list_branches = function() {
     socket.emit("get-branches", $scope.branches);

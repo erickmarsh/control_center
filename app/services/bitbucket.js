@@ -1,15 +1,14 @@
 'use strict'
+var config      = require('config');
+let rp          = require('request-promise');
 
-let rp = require('request-promise');
-let username  = null;
-let password  = null;
+var username  = config.get('bitbucket.username');
+var password  = config.get('bitbucket.password');
 
 class BitBucketService {
 
 
-  constructor(repo, user, pass) {
-      this.username = user;
-      this.password = pass;
+  constructor() {
   }
 
   // return an array of branches for given project
@@ -21,14 +20,14 @@ class BitBucketService {
 
    let options = {
         auth: {
-          user: this.username,
-          pass: this.password},
+          user: username,
+          pass: password},
         json: true,
         resolveWithFullResponse: true,
         uri: url
-  };
+   };
 
-    return rp(options)
+   return rp(options)
       .then( (response) => {
         console.log("response: "+ response);
         Promise.resolve (_.keys(response.body));
@@ -37,8 +36,7 @@ class BitBucketService {
         console.log("err: "+ err);
         Promise.reject(err);
       });
-  }
-
+   }
 }
 
 module.exports = BitBucketService;
